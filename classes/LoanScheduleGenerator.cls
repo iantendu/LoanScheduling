@@ -11,56 +11,9 @@ public class LoanSchedule {
     private Double feesFlat;
     private List<Double> payments;
 
-    public LoanSchedule() {}
+   
 
-    public Double getLoanAmount() {
-        return loanAmount;
-    }
-
-    public void setLoanAmount(Double loanAmount) {
-        this.loanAmount = loanAmount;
-    }
-
-    public Double getInterestRate() {
-        return interestRate;
-    }
-
-    public void setInterestRate(Double interestRate) {
-        this.interestRate = interestRate;
-    }
-
-    public Integer getNumberOfPeriods() {
-        return numberOfPeriods;
-    }
-
-    public void setNumberOfPeriods(Integer numberOfPeriods) {
-        this.numberOfPeriods = numberOfPeriods;
-    }
-
-    public Double getFeesPercentage() {
-        return feesPercentage;
-    }
-
-    public void setFeesPercentage(Double feesPercentage) {
-        this.feesPercentage = feesPercentage;
-    }
-
-    public Double getFeesFlat() {
-        return feesFlat;
-    }
-
-    public void setFeesFlat(Double feesFlat) {
-        this.feesFlat = feesFlat;
-    }
-
-    public Double[] getPayments() {
-        return payments;
-    }
-
-    public void setPayments(Double[] payments) {
-        this.payments = payments;
-    }
-     
+   
     // calculate payment
 // PMT - the payment on a loan or investment per period.
 // FV - the future value of a loan or investment.
@@ -68,7 +21,7 @@ public class LoanSchedule {
 // PV - the amount borrowed or invested.
 // RATE - the interest rate per period expressed as a decimal.
 // TYPE - indicates whether payments are made at the beginning (1) or end (0) of each period.
-    public Double pmt(Double rate, Integer nper, Double pv, Double fv, Integer type) {
+    public static Double pmt(Double rate, Integer nper, Double pv, Double fv, Integer type) {
         Double pmt = rate / (Math.pow(1 + rate, nper) - 1) * -(pv * Math.pow(1 + rate, nper) + fv);
 
         // account for payments at beginning of period versus end.
@@ -80,27 +33,59 @@ public class LoanSchedule {
     }
 
     // calculate loan schedule
-    public void calculateLoanSchedule() {
+    public List<LoanScheduleWrapper> calculateLoanSchedule(Double interestRate, Integer numberOfPeriods, Double loanAmount, Double feesFlat, Double feesPercentage) {
         Double rate = interestRate / 12;
-        Double pmt = pmt(rate, numberOfPeriods, loanAmount, 0.0, 0);
-
-        payments = new Double[numberOfPeriods + 1];
-        payments[0] = feesFlat;
-
+        Double pmt = this.pmt(rate, numberOfPeriods, loanAmount, 0.0, 0);
+    
+        List<LoanScheduleWrapper> schedules = new List<LoanScheduleWrapper>();
         Double balance = loanAmount;
-        for (int i = 1; i <= numberOfPeriods; i++) {
+        for (integer i = 1; i <= numberOfPeriods; i++) {
             Double interest = balance * rate;
             Double fees = balance * feesPercentage + feesFlat;
             Double principal = pmt - interest - fees;
-
+    
             balance -= principal;
-            payments[i] = pmt + fees;
-
+            Double paymentAmount = pmt + fees;
+    
             // last payment
             if (i == numberOfPeriods) {
                 pmt = balance + interest + fees;
-                payments[i] = pmt + feesFlat;
+                paymentAmount = pmt + feesFlat;
             }
+    
+            LoanScheduleWrapper schedule = new LoanScheduleWrapper();
+            schedule.interest=interest;
+            schedule.fees=fees;
+            schedule.principal=principal;
+            schedule.balance=balance;
+            schedule.paymentAmount=paymentAmount;
+            schedule.period=i;
+    
+            schedules.add(schedule);
         }
+    
+        return schedules;
     }
+    
+    public  class LoanScheduleWrapper {
+    private Double interest;
+    private Double fees;
+    private Double principal;
+    private Double balance;
+    private Double paymentAmount;
+    private Integer period;
+
+    public LoanScheduleWrapper(Double interest, Double fees, Double principal, Double balance, Double paymentAmount, Integer period) {
+        this.interest = interest;
+        this.fees = fees;
+        this.principal = principal;
+        this.balance = balance;
+        this.paymentAmount = paymentAmount;
+        this.period = period;
+    }
+        
+    }
+    
+    
 }
+
