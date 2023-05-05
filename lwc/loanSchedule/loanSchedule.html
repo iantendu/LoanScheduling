@@ -1,0 +1,33 @@
+<!--
+  @last modified on  : 05-04-2023
+  @last modified by  : iantendu
+-->
+<template>
+    <div class="container">     
+      <table>
+        <thead>
+            <tr>
+                <th>Period</th>
+                <th>Date</th>
+                <th>Interest</th>
+                <th>Fees</th>
+                <th>Principal</th>
+                <th>Total amount</th>
+            </tr>
+        </thead>
+        <tbody>
+            <template for:each={loanData} for:item="data">
+                <tr key={data.id}>
+                    <td>{data.period}</td>
+                    <td>{data.date}</td>
+                    <td>{data.interest}</td>
+                    <td>{data.fees}</td>
+                    <td>{data.principal}</td>
+                    <td>{data.totalAmount}</td>
+                </tr>
+            </template>
+        </tbody>
+      </table>
+      <button class="save-btn" >Save</button>
+    </div>
+  </template>
